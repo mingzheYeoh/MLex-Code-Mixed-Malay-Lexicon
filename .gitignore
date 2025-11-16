@@ -1,8 +1,3 @@
-# Neo4j Database Files
-data/
-logs/
-import/
-
 # Environment Variables
 .env
 .env.local
