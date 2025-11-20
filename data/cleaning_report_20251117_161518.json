@@ -1,0 +1,35 @@
+{
+  "timestamp": "20251117_161518",
+  "input_file": "final_dataset.csv",
+  "original_count": 150229,
+  "cleaned_count": 143670,
+  "removed_count": 6559,
+  "removal_rate": "4.37%",
+  "statistics": {
+    "symbol": 36,
+    "abbreviation": 6,
+    "meta": 680,
+    "interjection": 1718,
+    "incomplete": 4000,
+    "person_name": 75,
+    "useful_word": 118762,
+    "short_entry": 44,
+    "uncertain": 24908
+  },
+  "category_distribution": {
+    "useful_word": 118762,
+    "uncertain": 24908,
+    "incomplete": 4000,
+    "interjection": 1718,
+    "meta": 680,
+    "person_name": 75,
+    "short_entry": 44,
+    "symbol": 36,
+    "abbreviation": 6
+  },
+  "output_files": {
+    "cleaned": "final_dataset_cleaned_20251117_161518.csv",
+    "removed": "removed_entries_20251117_161518.csv",
+    "report": "cleaning_report_20251117_161518.json"
+  }
+}
