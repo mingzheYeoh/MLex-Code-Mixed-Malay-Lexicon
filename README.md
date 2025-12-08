@@ -1,173 +1,430 @@
-# MLex: Malay Lexicon (Code-Mixed)
+# MLex: Malay Lexicon System (Code-Mixed)
 
-一个基于Neo4j图数据库的马来语词典系统，支持词义消歧、同义词/反义词关系、以及自动和手动词典改进。
+A comprehensive Malay dictionary system built with Neo4j graph database, featuring AI-powered word sense disambiguation, semantic relationship networks, and an interactive web interface powered by Streamlit.
 
-## 项目特性
+## ✨ Features
 
-- 📚 **150,230+ 马来语词条** - 完整的马来语词典数据
-- 🔍 **词义消歧 (Word Sense Disambiguation)** - 支持多词义识别和上下文匹配
-- 🔗 **语义关系** - 同义词、反义词关系网络
-- 🏷️ **词性标注 (POS Tagging)** - 完整的词性信息
-- 📝 **例句支持** - 每个词义包含使用例句
-- 🤖 **自动改进** - 支持机器学习模型集成
-- ✏️ **手动改进** - 支持人工验证和编辑
-- 🌐 **API支持** - RESTful API接口（开发中）
-- 💻 **Web界面** - Streamlit用户界面（开发中）
+### Core Features
+- 📚 **150,230+ Malay Entries** - Comprehensive Malay dictionary database
+- 🔍 **Word Search** - Fast exact-match search with AI fallback
+- 🎯 **Word Sense Disambiguation (WSD)** - Multi-sentence context analysis using AI
+- 🔗 **Semantic Networks** - Synonym and antonym relationship graphs
+- ➕ **Add New Words** - User-friendly interface for dictionary expansion
+- 📊 **Database Statistics** - Real-time insights into lexicon data
 
-## 技术栈
+### Technical Features
+- 🤖 **AI Integration** - Ollama (Sailor2:8b) for Malay language processing
+- 🏷️ **POS Tagging** - Complete part-of-speech information
+- 📝 **Example Sentences** - Usage examples for each word sense
+- 🔄 **Root Word Tracking** - Morphological relationships
+- 🌐 **Etymology Information** - Word origin and domain classification
+- 💻 **Interactive UI** - Modern Streamlit web interface
+- 📥 **JSON Export** - Download analysis results
 
-- **数据库**: Neo4j (图数据库)
-- **容器化**: Docker & Docker Compose
-- **编程语言**: Python 3.8+
-- **主要库**: neo4j-driver, python-dotenv
+## 🚀 Tech Stack
 
-## 快速开始
+- **Database**: Neo4j 5.x (Graph Database)
+- **AI Model**: Ollama (Sailor2:8b) - Local AI inference
+- **Frontend**: Streamlit - Interactive web interface
+- **Backend**: Python 3.11+
+- **Containerization**: Docker & Docker Compose
+- **Key Libraries**:
+  - neo4j-driver - Database connectivity
+  - streamlit - Web UI framework
+  - requests - Ollama API integration
+  - pandas - Data processing
 
-### 1. 环境要求
+## 📋 Prerequisites
 
-- Docker & Docker Compose
-- Python 3.8+
-- pip
+Before starting, ensure you have:
 
-### 2. 启动Neo4j数据库
+- **Docker & Docker Compose** - For Neo4j database
+- **Python 3.11+** - For running the application
+- **Ollama** - For AI features (optional)
+- **Git** - For cloning the repository
+
+## 🛠️ Installation & Setup
+
+### 1. Clone the Repository
 
 ```bash
-# 启动Neo4j容器
-docker-compose up -d
-
-# 检查容器状态
-docker-compose ps
-
-# 访问Neo4j Browser: http://localhost:7474
-# 默认用户名: neo4j
-# 默认密码: 需要在docker-compose.yml或环境变量中设置
+git clone https://github.com/yourusername/MLex-Code-Mixed-Malay-Lexicon.git
+cd MLex-Code-Mixed-Malay-Lexicon
 ```
 
-### 3. 安装Python依赖
+### 2. Start Neo4j Database
 
 ```bash
+# Start Neo4j container
+docker-compose up -d
+
+# Verify container is running
+docker-compose ps
+
+# Access Neo4j Browser at: http://localhost:7474
+# Default credentials:
+#   Username: neo4j
+#   Password: mlex2025
+```
+
+### 3. Set Up Python Environment
+
+```bash
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# On Windows:
+.venv\Scripts\activate
+# On macOS/Linux:
+source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 4. 配置环境变量
+### 4. Configure Environment (Optional)
 
-创建 `.env` 文件：
+Create a `.env` file if you want custom configurations:
 
 ```bash
 NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
-NEO4J_PASSWORD=your_password_here
-CSV_FILE_PATH=data/final_dataset.csv
+NEO4J_PASSWORD=mlex2025
+GEMINI_API_KEY=your_key_here  # Optional: For Gemini AI
 ```
 
-### 5. 初始化数据库
+### 5. Import Dictionary Data
 
 ```bash
+# Initialize database constraints and indexes
 python scripts/init_database.py
-```
 
-这将创建所有必要的约束和索引。
-
-### 6. 导入数据
-
-```bash
+# Import dictionary data (may take 10-30 minutes)
 python scripts/import_data.py
 ```
 
-导入150,230条记录可能需要10-30分钟，取决于硬件配置。
-
-### 7. 测试查询
+### 6. Install and Configure Ollama (Recommended)
 
 ```bash
-python scripts/query_examples.py
+# Install Ollama from https://ollama.ai/
+
+# Pull the Sailor2:8b model for Malay language
+ollama pull sailor2:8b
+
+# Start Ollama service
+ollama serve
 ```
 
-## 项目结构
+### 7. Launch the Application
+
+```bash
+# Start Streamlit application
+streamlit run scripts/streamlit_app.py
+
+# Application will open at: http://localhost:8501
+```
+
+## 📁 Project Structure
 
 ```
 MLex-Code-Mixed-Malay-Lexicon/
+├── .venv/                          # Python virtual environment
 ├── data/
-│   └── final_dataset.csv          # 词典数据文件
+│   └── final_dataset_super_cleaned.csv  # Dictionary data
 ├── docs/
-│   └── NEO4J_DESIGN.md            # Neo4j数据库设计文档
+│   └── NEO4J_DESIGN.md            # Database design documentation
 ├── scripts/
-│   ├── init_database.py           # 数据库初始化脚本
-│   ├── import_data.py             # 数据导入脚本
-│   ├── query_examples.py          # 查询示例脚本
-│   └── README.md                  # 脚本使用说明
-├── neo4j_db/                      # Neo4j数据目录
-│   ├── data/                      # 数据库文件
-│   ├── logs/                      # 日志文件
-│   ├── import/                    # 导入目录
-│   └── plugins/                   # Neo4j插件
-├── docker-compose.yml             # Docker Compose配置
-├── requirements.txt               # Python依赖
-└── README.md                      # 项目说明
+│   ├── streamlit_app.py           # Main Streamlit application
+│   ├── new_wsd_module.py          # Unified WSD module
+│   ├── word_addition_module.py    # Add word functionality
+│   ├── ollama_service.py          # Ollama AI integration
+│   ├── gemini_wsd_service.py      # Gemini AI integration (optional)
+│   ├── import_data.py             # Data import script
+│   ├── init_database.py           # Database initialization
+│   └── debug_word_search.py       # Database diagnostic tool
+├── neo4j_db/                      # Neo4j data directory (ignored by git)
+│   ├── data/                      # Database files
+│   ├── logs/                      # Log files
+│   └── import/                    # Import directory
+├── docker-compose.yml             # Docker Compose configuration
+├── requirements.txt               # Python dependencies
+├── .gitignore                     # Git ignore rules
+└── README.md                      # This file
 ```
 
-## 数据库设计
+## 🎨 User Interface Features
 
-### 节点类型
+### 1. 🔍 Word Search
+- Exact-match search for Malay words
+- Automatic AI fallback for words not in database
+- Display complete word information:
+  - Part of Speech (POS)
+  - Phonetic transcription
+  - Root word
+  - Etymology
+  - Domain
+  - Synonyms
+  - Multiple definitions with examples
 
-1. **Word** - 词条节点
-   - 属性: entry, rootWrd, fonetik, asal, passive, diaLan, domain
+### 2. 🎯 WSD (Word Sense Disambiguation)
+- Analyze one word across multiple sentences
+- Minimum 2 sentences required
+- AI-powered context analysis
+- Features:
+  - Confidence scoring for each meaning
+  - Detailed reasoning from AI
+  - Visual ranking of candidate meanings
+  - JSON export for results
+  - Summary table view
 
-2. **Sense** - 词义节点
-   - 属性: sense_id, index, pos, label, definition, confidence_score
+### 3. ➕ Add Word
+- User-friendly form for adding new dictionary entries
+- Required fields:
+  - Entry (Malay word)
+  - Definition
+  - Part of Speech
+- Optional fields:
+  - Root word, Phonetic, Example sentence
+  - Domain, Label, Synonyms, Antonyms
+  - Etymology, Passive form, Dialect
+  - References
+- AI validation before saving
+- Direct save option (skip validation)
 
-3. **Example** - 例句节点
-   - 属性: example_id, text, source
+### 4. 📊 Statistics
+- Real-time database statistics
+- Node counts (Words, Senses, Roots, Examples)
+- Relationship statistics
+- POS distribution visualization
+- Interactive charts
 
-### 关系类型
+### 5. ⚙️ Settings
+- System information display
+- Neo4j connection status
+- AI service status (Ollama/Gemini)
+- Configuration options
 
-- `HAS_SENSE` - Word → Sense (词有多个词义)
-- `HAS_EXAMPLE` - Sense → Example (词义有例句)
-- `SYNONYM` - Sense ↔ Sense (同义词关系)
-- `ANTONYM` - Sense ↔ Sense (反义词关系)
+## 🗄️ Database Design
 
-详细设计请参考 [NEO4J_DESIGN.md](docs/NEO4J_DESIGN.md)
+### Node Types
 
-## 使用示例
+1. **Word** - Word entry node
+   - `entry`: Word text (unique)
+   - `rootWrd`: Root word
+   - `fonetik`: Phonetic transcription
+   - `pos`: Part of speech
+   - `label`: Classification label
+   - `asal`: Etymology
+   - `passive`: Passive form
+   - `diaLan`: Dialect information
+   - `domain`: Subject domain
+   - `references`: Source references
 
-### 查询词的所有词义
+2. **Sense** - Word sense node
+   - `sense_id`: Unique identifier
+   - `definition`: Meaning definition
+   - `sense_index`: Ordering index
+   - `confidence`: Confidence score
+
+3. **Example** - Example sentence node
+   - `text`: Example sentence
+
+4. **Root** - Root word node
+   - `word`: Root word text
+
+5. **Domain** - Subject domain node
+   - `name`: Domain name
+
+### Relationship Types
+
+- `HAS_SENSE` - Word → Sense (word has multiple senses)
+- `HAS_EXAMPLE` - Sense → Example (sense has examples)
+- `HAS_ROOT` - Word → Root (word derives from root)
+- `SYNONYM` - Word ↔ Word (synonym relationship, bidirectional)
+- `ANTONYM` - Word ↔ Word (antonym relationship, bidirectional)
+- `IN_DOMAIN` - Sense → Domain (sense belongs to domain)
+
+For detailed design documentation, see [NEO4J_DESIGN.md](docs/NEO4J_DESIGN.md)
+
+## 💡 Usage Examples
+
+### Basic Word Search
 
 ```python
-from scripts.query_examples import LexiconQueries
+from neo4j import GraphDatabase
 
-queries = LexiconQueries(uri, user, password)
-senses = queries.get_word_senses("abad")
-for sense in senses:
-    print(f"Sense {sense['sense_index']}: {sense['definition']}")
+driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "mlex2025"))
+
+with driver.session() as session:
+    result = session.run("""
+        MATCH (w:Word {entry: $word})-[:HAS_SENSE]->(s:Sense)
+        RETURN w, s
+    """, word="makan")
+
+    for record in result:
+        print(record['s']['definition'])
 ```
 
-### 词义消歧
+### WSD Analysis via UI
 
-```python
-# 基于上下文识别正确的词义
-results = queries.word_sense_disambiguation("abad", "seratus tahun")
+1. Navigate to **WSD** page
+2. Enter multiple sentences (one per line):
+   ```
+   Saya makan nasi goreng
+   Bateri makan kuasa
+   ```
+3. Enter target word: `makan`
+4. Click **Analyze**
+5. View ranked meanings with confidence scores
+6. Download results as JSON
+
+### Adding New Words
+
+1. Navigate to **Add Word** page
+2. Fill in required information
+3. Optionally add synonyms: `word1; word2; word3`
+4. Click **AI Verification** for validation
+5. Word is automatically saved if validation passes
+
+## 🧪 Testing
+
+### Run Database Diagnostics
+
+```bash
+python scripts/debug_word_search.py
 ```
 
-### 查找同义词
+### Test WSD Feature
 
-```python
-synonyms = queries.get_synonyms("abad", sense_index=1)
+Use these test cases in the WSD interface:
+
+**Case 1: "makan" (multiple meanings)**
+```
+Saya makan nasi goreng
+Bateri makan kuasa
+Karat makan besi
 ```
 
-## 开发计划
+**Case 2: "main" (play)**
+```
+Kanak-kanak main bola di padang
+Dia main piano dengan baik
+```
 
-- [x] Neo4j数据库设计和初始化
-- [x] 数据导入脚本
-- [x] 基础查询功能
-- [ ] RESTful API开发
-- [ ] Streamlit用户界面
-- [ ] 词义消歧模型集成
-- [ ] 自动词典改进功能
-- [ ] 用户反馈系统
+## 🔧 Troubleshooting
 
-## 贡献
+### Neo4j Connection Issues
 
-欢迎提交Issue和Pull Request！
+```bash
+# Check if Neo4j is running
+docker-compose ps
 
-## 作者
+# Restart Neo4j
+docker-compose restart neo4j
 
-Yeoh Ming Zhe
+# View Neo4j logs
+docker-compose logs neo4j
+```
+
+### Ollama Issues
+
+```bash
+# Check if Ollama is running
+curl http://localhost:11434/api/tags
+
+# Restart Ollama
+ollama serve
+
+# Verify model is installed
+ollama list
+```
+
+### Application Errors
+
+```bash
+# Check if virtual environment is activated
+# Windows:
+.venv\Scripts\activate
+
+# Verify all dependencies are installed
+pip install -r requirements.txt
+
+# Clear Streamlit cache
+streamlit cache clear
+```
+
+## 📊 Development Roadmap
+
+- [x] Neo4j database design and initialization
+- [x] Data import scripts (150K+ entries)
+- [x] Streamlit web interface
+- [x] Word search with AI fallback
+- [x] Unified WSD module (multi-sentence analysis)
+- [x] Add Word functionality with AI validation
+- [x] Synonym and antonym relationships
+- [x] Database statistics visualization
+- [x] Ollama AI integration (Sailor2:8b)
+- [x] JSON export for WSD results
+- [ ] RESTful API development
+- [ ] User authentication system
+- [ ] Word editing functionality
+- [ ] Batch import interface
+- [ ] Advanced search filters
+- [ ] Mobile-responsive design
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is open source. Please check the license file for more details.
+
+## 👤 Author
+
+**Yeoh Ming Zhe**
+
+- GitHub: [@yourusername](https://github.com/yourusername)
+- Email: your.email@example.com
+
+## 🙏 Acknowledgments
+
+- Neo4j for the powerful graph database
+- Ollama and Sailor2 team for the Malay language model
+- Streamlit for the excellent UI framework
+- The Malay language community
+
+## 📚 Citation
+
+If you use this lexicon in your research, please cite:
+
+```bibtex
+@misc{mlex2025,
+  title={MLex: Code-Mixed Malay Lexicon System},
+  author={Yeoh, Ming Zhe},
+  year={2025},
+  publisher={GitHub},
+  howpublished={\url{https://github.com/yourusername/MLex-Code-Mixed-Malay-Lexicon}},
+  note={A comprehensive Malay dictionary system with AI-powered word sense disambiguation}
+}
+```
+
+## 📞 Support
+
+For questions or support, please:
+- Open an issue on GitHub
+- Check existing issues for solutions
+- Review the documentation in `/docs`
+
+---
+
+**Note**: This project requires Python 3.11+, Neo4j 5.x, and optionally Ollama for AI features. Make sure all prerequisites are installed before starting.

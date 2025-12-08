@@ -289,9 +289,8 @@ class Neo4jImporter:
 
 
 def main():
-    """主函数"""
     
-    CSV_FILE = "../data/final_dataset_cleaned.csv"  # 修改为你的文件路径
+    CSV_FILE = "../data/final_dataset_super_cleaned.csv"  
     
     if not os.path.exists(CSV_FILE):
         logger.error(f"文件不存在: {CSV_FILE}")

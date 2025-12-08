@@ -23,6 +23,7 @@ Thumbs.db
 # IDE & Editor Files
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -56,17 +57,106 @@ metrics/
 # Node modules (if using any Node.js tools)
 node_modules/
 
-# Python (if using Python scripts)
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 .Python
+
+# Virtual Environments
 venv/
 env/
 ENV/
+.venv/
+env.bak/
+venv.bak/
+
+# Python Distribution / Packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Pytest
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# IPython
+profile_default/
+ipython_config.py
 
 # Compiled files
 *.class
 *.jar
 *.war
 *.ear
+
+# Streamlit
+.streamlit/
+.streamlit/cache/
+.streamlit/config.toml
+streamlit-*.log
+
+# Project-specific Data Files
+data/*.csv
+!data/final_dataset_super_cleaned.csv
+data/*_report_*.json
+data/removed_entries_*.csv
+data/cleaned_*.csv
+
+# WSD Analysis Output
+wsd_*.json
+*_analysis_*.json
+
+# Temporary Scripts (cleanup, debug, test)
+scripts/remove_all_chinese.py
+scripts/clean_word_addition_chinese.py
+scripts/fix_formatting.py
+scripts/fast_data_cleaner.py
+scripts/chinese_lines.txt
+scripts/test_*.py
+scripts/debug_*.py
+!scripts/debug_word_search.py
+
+# Null/Empty Files
+nul
+null
+
+# Ollama/AI Cache
+ollama_cache/
+*.ollama
+
+# Database Dumps
+*.dump
+*.sql
+
+# Generated Documentation
+docs/api/
+docs/_build/
