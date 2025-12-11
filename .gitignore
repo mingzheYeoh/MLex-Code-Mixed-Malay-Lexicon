@@ -139,7 +139,6 @@ wsd_*.json
 scripts/remove_all_chinese.py
 scripts/clean_word_addition_chinese.py
 scripts/fix_formatting.py
-scripts/fast_data_cleaner.py
 scripts/chinese_lines.txt
 scripts/test_*.py
 scripts/debug_*.py
