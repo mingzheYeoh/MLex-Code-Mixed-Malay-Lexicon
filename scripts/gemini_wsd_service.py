@@ -1,6 +1,5 @@
 """
-MLEX - 交互式词义消歧工具
-Interactive Word Sense Disambiguation Tool
+MLEX - Interactive Word Sense Disambiguation Tool
 """
 
 import os
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class WordSense:
-    """词义数据结构"""
+    """Word sense data structure"""
     sense_id: str
     definition: str
     examples: tuple = None
@@ -24,15 +23,15 @@ class WordSense:
 
 
 class GeminiWSDService:
-    """使用Google Gemini进行Word Sense Disambiguation"""
+    """Word Sense Disambiguation using Google Gemini"""
     
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.getenv('GEMINI_API_KEY')
         
         if not self.api_key:
             raise ValueError(
-                "需要Gemini API密钥！\n"
-                "请设置: export GEMINI_API_KEY='your-key'"
+                "Gemini API key required!\n"
+                "Please set: export GEMINI_API_KEY='your-key'"
             )
         
         genai.configure(api_key=self.api_key)
@@ -58,7 +57,7 @@ class GeminiWSDService:
         context: str, 
         candidate_senses: tuple
     ) -> List[Dict]:
-        """词义消歧"""
+        """Word sense disambiguation"""
         
         prompt = self._build_simple_prompt(word, context, candidate_senses)
         
@@ -85,11 +84,11 @@ class GeminiWSDService:
             return result if result else self._get_fallback_result(candidate_senses)
             
         except Exception as e:
-            logger.error(f"API错误: {e}")
+            logger.error(f"API error: {e}")
             return self._get_fallback_result(candidate_senses)
     
     def _build_simple_prompt(self, word: str, context: str, senses: tuple) -> str:
-        """构建prompt"""
+        """Build prompt"""
         sense_list = []
         for sense in senses:
             sense_list.append(f'{{"{sense.sense_id}": "{sense.definition}"}}')
@@ -107,7 +106,7 @@ Rank by relevance (0-100). Return JSON:
         return prompt
     
     def _parse_response(self, text: str, senses: tuple) -> Optional[List[Dict]]:
-        """解析响应"""
+        """Parse response"""
         try:
             text = text.strip()
             text = text.replace('```json', '').replace('```', '').strip()
@@ -146,7 +145,7 @@ Rank by relevance (0-100). Return JSON:
             return None
     
     def _get_fallback_result(self, senses: tuple) -> List[Dict]:
-        """降级结果"""
+        """Fallback result"""
         n = len(senses)
         confidence = 100.0 / n if n > 0 else 0
         
@@ -155,25 +154,25 @@ Rank by relevance (0-100). Return JSON:
                 'sense_id': sense.sense_id,
                 'definition': sense.definition,
                 'confidence': confidence,
-                'reasoning': '无法获取AI分析'
+                'reasoning': 'Unable to get AI analysis'
             }
             for sense in senses
         ]
     
     def find_common_words(self, sentence1: str, sentence2: str) -> List[str]:
-        """找出两个句子中的相同词汇"""
+        """Find common words between two sentences"""
         words1 = set(sentence1.lower().split())
         words2 = set(sentence2.lower().split())
         
-        # 移除标点符号
+        # Remove punctuation
         import string
         words1 = {w.strip(string.punctuation) for w in words1}
         words2 = {w.strip(string.punctuation) for w in words2}
         
-        # 找出交集
+        # Find intersection
         common = words1 & words2
         
-        # 过滤掉太短的词（可能是停用词）
+        # Filter out words that are too short (likely stopwords)
         common = {w for w in common if len(w) > 2}
         
         return list(common)
@@ -184,7 +183,7 @@ Rank by relevance (0-100). Return JSON:
         context1: str, 
         context2: str
     ) -> Dict:
-        """分析同一个词在两个不同上下文中的含义"""
+        """Analyze the same word in two different contexts"""
         
         prompt = f"""Analyze the word "{word}" in two different contexts.
 
@@ -226,14 +225,14 @@ Return JSON:
             return result
             
         except Exception as e:
-            logger.error(f"分析失败: {e}")
+            logger.error(f"Analysis failed: {e}")
             return None
 
 
-# ==================== Neo4j连接 ====================
+# ==================== Neo4j Connection ====================
 
 class Neo4jConnection:
-    """连接Neo4j获取词义"""
+    """Connect to Neo4j to get word senses"""
     
     def __init__(self, uri="bolt://localhost:7687", user="neo4j", password="mlex2025"):
         try:
@@ -241,12 +240,12 @@ class Neo4jConnection:
             self.driver = GraphDatabase.driver(uri, auth=(user, password))
             self.connected = True
         except Exception as e:
-            logger.warning(f"⚠️  Neo4j连接失败: {e}")
-            logger.warning("   将使用模拟数据")
+            logger.warning(f"⚠️  Neo4j connection failed: {e}")
+            logger.warning("   Will use mock data")
             self.connected = False
     
     def get_word_senses(self, word: str) -> List[WordSense]:
-        """从Neo4j获取词义"""
+        """Get word senses from Neo4j"""
         if not self.connected:
             return self._get_mock_senses(word)
         
@@ -270,11 +269,11 @@ class Neo4jConnection:
                 return senses if senses else self._get_mock_senses(word)
         
         except Exception as e:
-            logger.warning(f"查询失败: {e}")
+            logger.warning(f"Query failed: {e}")
             return self._get_mock_senses(word)
     
     def _get_mock_senses(self, word: str) -> List[WordSense]:
-        """模拟数据（当Neo4j不可用时）"""
+        """Mock data (when Neo4j is unavailable)"""
         mock_data = {
             'makan': [
                 WordSense('makan_1', 'to eat food'),
@@ -310,97 +309,97 @@ class Neo4jConnection:
             self.driver.close()
 
 
-# ==================== 交互式界面 ====================
+# ==================== Interactive Interface ====================
 
 class InteractiveWSD:
-    """交互式WSD工具"""
+    """Interactive WSD Tool"""
     
     def __init__(self):
         self.wsd_service = None
         self.neo4j = None
     
     def initialize(self):
-        """初始化服务"""
+        """Initialize services"""
         print("\n" + "="*80)
-        print("🔤 MLEX - 交互式词义消歧工具")
+        print("🔤 MLEX - Interactive Word Sense Disambiguation Tool")
         print("="*80)
         
-        # 初始化Gemini
+        # Initialize Gemini
         try:
             self.wsd_service = GeminiWSDService()
-            print("✅ Gemini服务初始化成功")
+            print("✅ Gemini service initialized successfully")
         except ValueError as e:
             print(f"\n❌ {e}")
             return False
         
-        # 初始化Neo4j
+        # Initialize Neo4j
         self.neo4j = Neo4jConnection()
         if self.neo4j.connected:
-            print("✅ Neo4j连接成功")
+            print("✅ Neo4j connected successfully")
         else:
-            print("⚠️  Neo4j未连接，使用模拟数据")
+            print("⚠️  Neo4j not connected, using mock data")
         
         return True
     
     def show_menu(self):
-        """显示菜单"""
+        """Display menu"""
         print("\n" + "-"*80)
-        print("选择功能:")
-        print("  1. 单词词义消歧 (输入词 + 句子)")
-        print("  2. 句子对比分析 (找出相同词的不同含义)")
-        print("  3. 退出")
+        print("Select function:")
+        print("  1. Single word disambiguation (enter word + sentence)")
+        print("  2. Sentence comparison analysis (find different meanings of same words)")
+        print("  3. Exit")
         print("-"*80)
     
     def mode_single_word(self):
-        """模式1: 单词WSD"""
-        print("\n📍 模式1: 单词词义消歧")
+        """Mode 1: Single word WSD"""
+        print("\n📍 Mode 1: Single word disambiguation")
         print("-"*80)
         
-        word = input("\n请输入要分析的词: ").strip()
+        word = input("\nPlease enter the word to analyze: ").strip()
         if not word:
-            print("❌ 词不能为空")
+            print("❌ Word cannot be empty")
             return
         
-        context = input(f"请输入包含 '{word}' 的句子: ").strip()
+        context = input(f"Please enter a sentence containing '{word}': ").strip()
         if not context:
-            print("❌ 句子不能为空")
+            print("❌ Sentence cannot be empty")
             return
         
-        # 检查词是否在句子中
+        # Check if word is in sentence
         if word.lower() not in context.lower():
-            print(f"⚠️  警告: 词 '{word}' 不在句子中")
-            confirm = input("继续分析? (y/n): ").strip().lower()
+            print(f"⚠️  Warning: Word '{word}' is not in the sentence")
+            confirm = input("Continue analysis? (y/n): ").strip().lower()
             if confirm != 'y':
                 return
         
-        print(f"\n🔍 正在分析...")
+        print(f"\n🔍 Analyzing...")
         
-        # 从Neo4j获取词义
+        # Get senses from Neo4j
         senses = self.neo4j.get_word_senses(word)
         
         if not senses:
-            print(f"❌ 找不到词 '{word}' 的定义")
+            print(f"❌ Cannot find definition for word '{word}'")
             return
         
-        print(f"\n📚 找到 {len(senses)} 个词义:")
+        print(f"\n📚 Found {len(senses)} senses:")
         for i, sense in enumerate(senses, 1):
             print(f"  {i}. {sense.definition}")
         
-        # 执行WSD
-        print(f"\n🤖 AI分析中...")
+        # Execute WSD
+        print(f"\n🤖 AI analyzing...")
         results = self.wsd_service.disambiguate(word, context, tuple(senses))
         
-        # 显示结果
+        # Display results
         print(f"\n" + "="*80)
-        print("📊 分析结果:")
+        print("📊 Analysis Results:")
         print("="*80)
-        print(f"句子: {context}")
-        print(f"词语: {word}\n")
+        print(f"Sentence: {context}")
+        print(f"Word: {word}\n")
         
         for i, r in enumerate(results, 1):
             conf = r['confidence']
             
-            # 根据置信度选择图标
+            # Select icon based on confidence
             if conf > 70:
                 icon = "🟢"
             elif conf > 40:
@@ -408,42 +407,42 @@ class InteractiveWSD:
             else:
                 icon = "🔴"
             
-            print(f"{icon} 排名 {i}: {r['definition']}")
-            print(f"   置信度: {conf:.1f}%")
-            print(f"   理由: {r['reasoning']}\n")
+            print(f"{icon} Rank {i}: {r['definition']}")
+            print(f"   Confidence: {conf:.1f}%")
+            print(f"   Reason: {r['reasoning']}\n")
     
     def mode_sentence_comparison(self):
-        """模式2: 句子对比"""
-        print("\n📍 模式2: 句子对比分析")
+        """Mode 2: Sentence comparison"""
+        print("\n📍 Mode 2: Sentence comparison analysis")
         print("-"*80)
         
-        sentence1 = input("\n请输入第一个句子: ").strip()
+        sentence1 = input("\nPlease enter the first sentence: ").strip()
         if not sentence1:
-            print("❌ 句子不能为空")
+            print("❌ Sentence cannot be empty")
             return
         
-        sentence2 = input("请输入第二个句子: ").strip()
+        sentence2 = input("Please enter the second sentence: ").strip()
         if not sentence2:
-            print("❌ 句子不能为空")
+            print("❌ Sentence cannot be empty")
             return
         
-        print(f"\n🔍 寻找相同的词...")
+        print(f"\n🔍 Finding common words...")
         
-        # 找出相同的词
+        # Find common words
         common_words = self.wsd_service.find_common_words(sentence1, sentence2)
         
         if not common_words:
-            print("❌ 两个句子没有相同的词")
+            print("❌ The two sentences have no common words")
             return
         
-        print(f"\n📝 找到 {len(common_words)} 个相同的词: {', '.join(common_words)}")
+        print(f"\n📝 Found {len(common_words)} common words: {', '.join(common_words)}")
         
-        # 分析每个相同的词
-        print(f"\n🤖 分析每个词在两个句子中的含义...")
+        # Analyze each common word
+        print(f"\n🤖 Analyzing the meaning of each word in both sentences...")
         print("="*80)
         
         for word in common_words:
-            print(f"\n🔤 词: {word}")
+            print(f"\n🔤 Word: {word}")
             print("-"*80)
             
             result = self.wsd_service.analyze_word_in_contexts(
@@ -451,35 +450,35 @@ class InteractiveWSD:
             )
             
             if not result:
-                print("❌ 分析失败")
+                print("❌ Analysis failed")
                 continue
             
-            print(f"句子1: {sentence1}")
-            print(f"含义: {result.get('context1_meaning', 'N/A')}\n")
+            print(f"Sentence 1: {sentence1}")
+            print(f"Meaning: {result.get('context1_meaning', 'N/A')}\n")
             
-            print(f"句子2: {sentence2}")
-            print(f"含义: {result.get('context2_meaning', 'N/A')}\n")
+            print(f"Sentence 2: {sentence2}")
+            print(f"Meaning: {result.get('context2_meaning', 'N/A')}\n")
             
             are_different = result.get('are_different', False)
             confidence = result.get('confidence', 0)
             
             if are_different:
-                print(f"✅ 含义不同 (置信度: {confidence}%)")
+                print(f"✅ Different meanings (confidence: {confidence}%)")
             else:
-                print(f"❌ 含义相同 (置信度: {confidence}%)")
+                print(f"❌ Same meaning (confidence: {confidence}%)")
             
-            print(f"说明: {result.get('explanation', 'N/A')}")
+            print(f"Explanation: {result.get('explanation', 'N/A')}")
             print("-"*80)
     
     def run(self):
-        """运行主程序"""
+        """Run main program"""
         if not self.initialize():
             return
         
         while True:
             self.show_menu()
             
-            choice = input("\n请选择 (1/2/3): ").strip()
+            choice = input("\nPlease select (1/2/3): ").strip()
             
             if choice == '1':
                 self.mode_single_word()
@@ -488,31 +487,31 @@ class InteractiveWSD:
                 self.mode_sentence_comparison()
             
             elif choice == '3':
-                print("\n👋 再见！")
+                print("\n👋 Goodbye!")
                 break
             
             else:
-                print("❌ 无效选择，请输入 1, 2 或 3")
+                print("❌ Invalid selection, please enter 1, 2 or 3")
             
-            input("\n按Enter继续...")
+            input("\nPress Enter to continue...")
         
-        # 清理
+        # Cleanup
         if self.neo4j:
             self.neo4j.close()
 
 
-# ==================== 主程序 ====================
+# ==================== Main Program ====================
 
 def main():
-    """主函数"""
+    """Main function"""
     app = InteractiveWSD()
     
     try:
         app.run()
     except KeyboardInterrupt:
-        print("\n\n👋 程序已中断")
+        print("\n\n👋 Program interrupted")
     except Exception as e:
-        print(f"\n❌ 发生错误: {e}")
+        print(f"\n❌ Error occurred: {e}")
         import traceback
         traceback.print_exc()
 

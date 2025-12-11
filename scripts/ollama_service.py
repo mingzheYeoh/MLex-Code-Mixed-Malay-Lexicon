@@ -135,7 +135,7 @@ Return the JSON object ONLY, nothing else."""
                     json_str = re.sub(r'"index":\s*(\d+)', r'"index": "\1"', json_str)
 
                     # 2. Remove ALL parenthetical content FIRST (most aggressive)
-                    #    Removes: (kata dasar), (base form), (中文), etc.
+                    #    Removes: (kata dasar), (base form), (Chinese), etc.
                     json_str = re.sub(r'\([^)]*\)', '', json_str)
 
                     # 3. Remove inline comments after quotes: "value" // comment

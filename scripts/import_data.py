@@ -24,14 +24,14 @@ class Neo4jImporter:
             'synonyms': 0,
             'errors': 0
         }
-        # 跟踪已创建的sense_id，避免重复
+        # Track created sense_ids to avoid duplicates
         self.created_sense_ids = set()
     
     def close(self):
         self.driver.close()
     
     def clean_text(self, text):
-        """清理文本"""
+        """Clean text"""
         if pd.isna(text):
             return None
         text = str(text).strip()
@@ -39,18 +39,18 @@ class Neo4jImporter:
     
     def generate_unique_sense_id(self, entry, index, row_index):
         """
-        生成唯一的sense_id
-        使用 entry_index_序号 的格式
-        如果entry_index已存在，添加序列号
+        Generate unique sense_id
+        Uses entry_index_number format
+        If entry_index already exists, add a sequence number
         """
         base_sense_id = f"{entry}_{index}" if index else f"{entry}_0"
         
-        # 如果基础ID不存在，直接使用
+        # If base ID doesn't exist, use it directly
         if base_sense_id not in self.created_sense_ids:
             self.created_sense_ids.add(base_sense_id)
             return base_sense_id
         
-        # 如果存在，添加序列号（使用row_index确保唯一性）
+        # If exists, add sequence number (use row_index to ensure uniqueness)
         unique_sense_id = f"{base_sense_id}_r{row_index}"
         self.created_sense_ids.add(unique_sense_id)
         
@@ -58,7 +58,7 @@ class Neo4jImporter:
         return unique_sense_id
     
     def create_word_node(self, tx, row):
-        """创建Word节点（使用MERGE避免重复）"""
+        """Create Word node (using MERGE to avoid duplicates)"""
         entry = self.clean_text(row.get('entry'))
         
         query = """
@@ -94,22 +94,22 @@ class Neo4jImporter:
     
     def create_sense_node(self, tx, entry, definition, index, row_index):
         """
-        创建Sense节点
-        使用唯一的sense_id（包含row_index以避免重复）
+        Create Sense node
+        Uses unique sense_id (including row_index to avoid duplicates)
         """
         sense_id = self.generate_unique_sense_id(entry, index, row_index)
         
-        # 智能处理 sense_index：支持数字和字母
+        # Smart handling of sense_index: supports numbers and letters
         if index:
-            # 如果是数字，转换为int；如果是字母，保持字符串
+            # If it's a number, convert to int; if it's a letter, keep as string
             try:
                 sense_index_value = int(index)
             except (ValueError, TypeError):
-                # 字母索引：'a'=1, 'b'=2, 'c'=3, 等等
+                # Letter index: 'a'=1, 'b'=2, 'c'=3, etc.
                 if isinstance(index, str) and len(index) == 1 and index.isalpha():
                     sense_index_value = ord(index.lower()) - ord('a') + 1
                 else:
-                    # 其他情况，保持为字符串
+                    # Other cases, keep as string
                     sense_index_value = str(index)
         else:
             sense_index_value = 0
@@ -134,7 +134,7 @@ class Neo4jImporter:
         return sense_id
     
     def create_word_sense_relationship(self, tx, entry, sense_id):
-        """创建Word到Sense的关系"""
+        """Create Word to Sense relationship"""
         query = """
         MATCH (w:Word {entry: $entry})
         MATCH (s:Sense {sense_id: $sense_id})
@@ -143,7 +143,7 @@ class Neo4jImporter:
         tx.run(query, entry=entry, sense_id=sense_id)
     
     def create_root_relationship(self, tx, entry, root_word):
-        """创建Root关系"""
+        """Create Root relationship"""
         if not root_word or root_word == entry:
             return
         
@@ -155,7 +155,7 @@ class Neo4jImporter:
         tx.run(query, entry=entry, root_word=root_word)
     
     def create_example_node(self, tx, sense_id, example_text):
-        """创建Example节点"""
+        """Create Example node"""
         if not example_text:
             return
         
@@ -170,7 +170,7 @@ class Neo4jImporter:
         tx.run(query, sense_id=sense_id, example_text=example_text)
     
     def create_domain_relationship(self, tx, sense_id, domain_name):
-        """创建Domain关系"""
+        """Create Domain relationship"""
         if not domain_name:
             return
         
@@ -182,11 +182,11 @@ class Neo4jImporter:
         tx.run(query, sense_id=sense_id, domain_name=domain_name)
     
     def create_synonym_relationships(self, tx, entry, synonyms):
-        """创建同义词关系"""
+        """Create synonym relationships"""
         if not synonyms:
             return
         
-        # 分割同义词（假设用逗号或分号分隔）
+        # Split synonyms (assuming comma or semicolon separated)
         synonym_list = [s.strip() for s in str(synonyms).replace(';', ',').split(',')]
         
         for synonym in synonym_list:
@@ -199,23 +199,23 @@ class Neo4jImporter:
                 tx.run(query, entry=entry, synonym=synonym)
     
     def import_row(self, session, row, row_index):
-        """导入单行数据"""
+        """Import single row of data"""
         try:
             entry = self.clean_text(row.get('entry'))
             if not entry:
                 return False
             
-            # 1. 创建Word节点（MERGE，不重复）
+            # 1. Create Word node (MERGE, no duplicates)
             session.execute_write(self.create_word_node, row)
             self.stats['words'] += 1
             
-            # 2. 创建Root关系
+            # 2. Create Root relationship
             root_word = self.clean_text(row.get('rootWrd'))
             if root_word:
                 session.execute_write(self.create_root_relationship, entry, root_word)
                 self.stats['roots'] += 1
             
-            # 3. 创建Sense节点（使用唯一ID）
+            # 3. Create Sense node (using unique ID)
             definition = self.clean_text(row.get('def'))
             if definition:
                 index = self.clean_text(row.get('index'))
@@ -224,26 +224,26 @@ class Neo4jImporter:
                     entry, 
                     definition, 
                     index,
-                    row_index  # 传递row_index确保唯一性
+                    row_index  # Pass row_index to ensure uniqueness
                 )
                 self.stats['senses'] += 1
                 
-                # 4. 创建Word-Sense关系
+                # 4. Create Word-Sense relationship
                 session.execute_write(self.create_word_sense_relationship, entry, sense_id)
                 
-                # 5. 创建Example节点
+                # 5. Create Example node
                 example = self.clean_text(row.get('exp'))
                 if example:
                     session.execute_write(self.create_example_node, sense_id, example)
                     self.stats['examples'] += 1
                 
-                # 6. 创建Domain关系
+                # 6. Create Domain relationship
                 domain = self.clean_text(row.get('domain'))
                 if domain:
                     session.execute_write(self.create_domain_relationship, sense_id, domain)
                     self.stats['domains'] += 1
             
-            # 7. 创建同义词关系
+            # 7. Create synonym relationships
             sinonim = self.clean_text(row.get('sinonim'))
             if sinonim:
                 session.execute_write(self.create_synonym_relationships, entry, sinonim)
@@ -257,34 +257,34 @@ class Neo4jImporter:
             return False
     
     def import_csv(self, csv_file, batch_size=1000):
-        """批量导入CSV数据"""
-        logger.info(f"开始导入数据: {csv_file}")
+        """Batch import CSV data"""
+        logger.info(f"Starting data import: {csv_file}")
         
-        # 读取CSV
+        # Read CSV
         df = pd.read_csv(csv_file)
         total_rows = len(df)
-        logger.info(f"总行数: {total_rows:,}")
+        logger.info(f"Total rows: {total_rows:,}")
         
-        # 分批处理
+        # Process in batches
         with self.driver.session() as session:
-            for i in tqdm(range(0, total_rows, batch_size), desc="导入进度"):
+            for i in tqdm(range(0, total_rows, batch_size), desc="Import progress"):
                 chunk = df.iloc[i:i+batch_size]
-                logger.info(f"处理chunk {i//batch_size + 1}...")
+                logger.info(f"Processing chunk {i//batch_size + 1}...")
                 
                 for idx, row in chunk.iterrows():
                     self.import_row(session, row, idx)
         
-        # 打印统计
+        # Print statistics
         logger.info("\n" + "=" * 80)
-        logger.info("导入完成！统计信息:")
+        logger.info("Import completed! Statistics:")
         logger.info("=" * 80)
-        logger.info(f"Word节点创建: {self.stats['words']:,}")
-        logger.info(f"Sense节点创建: {self.stats['senses']:,}")
-        logger.info(f"Root关系创建: {self.stats['roots']:,}")
-        logger.info(f"Domain关系创建: {self.stats['domains']:,}")
-        logger.info(f"Example节点创建: {self.stats['examples']:,}")
-        logger.info(f"同义词关系创建: {self.stats['synonyms']:,}")
-        logger.info(f"错误数量: {self.stats['errors']:,}")
+        logger.info(f"Word nodes created: {self.stats['words']:,}")
+        logger.info(f"Sense nodes created: {self.stats['senses']:,}")
+        logger.info(f"Root relationships created: {self.stats['roots']:,}")
+        logger.info(f"Domain relationships created: {self.stats['domains']:,}")
+        logger.info(f"Example nodes created: {self.stats['examples']:,}")
+        logger.info(f"Synonym relationships created: {self.stats['synonyms']:,}")
+        logger.info(f"Error count: {self.stats['errors']:,}")
         logger.info("=" * 80)
 
 
@@ -293,30 +293,30 @@ def main():
     CSV_FILE = "../data/final_dataset_super_cleaned.csv"  
     
     if not os.path.exists(CSV_FILE):
-        logger.error(f"文件不存在: {CSV_FILE}")
-        logger.info("请修改 CSV_FILE 变量为正确的路径")
+        logger.error(f"File does not exist: {CSV_FILE}")
+        logger.info("Please modify the CSV_FILE variable to the correct path")
         sys.exit(1)
     
-    # 创建导入器
+    # Create importer
     importer = Neo4jImporter()
     
     try:
-        # 导入数据
+        # Import data
         start_time = datetime.now()
         importer.import_csv(CSV_FILE, batch_size=1000)
         end_time = datetime.now()
         
         duration = (end_time - start_time).total_seconds()
-        logger.info(f"\n总耗时: {duration:.2f} 秒")
-        logger.info(f"平均速度: {importer.stats['words']/duration:.0f} 条/秒")
+        logger.info(f"\nTotal time: {duration:.2f} seconds")
+        logger.info(f"Average speed: {importer.stats['words']/duration:.0f} records/sec")
         
     except Exception as e:
-        logger.error(f"导入失败: {e}")
+        logger.error(f"Import failed: {e}")
         sys.exit(1)
     finally:
         importer.close()
     
-    logger.info("\n✅ 数据导入完成！")
+    logger.info("\n✅ Data import completed!")
 
 
 if __name__ == "__main__":

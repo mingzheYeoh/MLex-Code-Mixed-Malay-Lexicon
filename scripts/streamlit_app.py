@@ -1253,13 +1253,13 @@ def render_single_wsd(neo4j_conn, ai_service):
             senses = neo4j_conn.get_all_senses_for_word(target_word)
             
             if not senses:
-                st.error(f"❌ Word条 '{target_word}' notinData库in")
+                st.error(f"❌ Word '{target_word}' not in database")
                 st.info("💡 Available test words: makan, main, buah")
                 return
             
             if len(senses) == 1:
-                st.info(f"ℹ️ Word条 '{target_word}' 只has1Meanings，No disambiguation needed")
-                st.write(f"**唯1Meanings:** {senses[0].definition}")
+                st.info(f"ℹ️ Word '{target_word}' has only 1 meaning, no disambiguation needed")
+                st.write(f"**Only 1 meaning:** {senses[0].definition}")
                 return
             
             # Call AI for WSD
@@ -1278,12 +1278,12 @@ def render_single_wsd(neo4j_conn, ai_service):
             with col1:
                 st.info(f"**Sentence:** {context}")
             with col2:
-                st.info(f"**目标Word:** {target_word}")
+                st.info(f"**Target Word:** {target_word}")
             
             st.markdown("---")
             st.markdown("### 📊 Meanings Sorting Result")
             
-            # 可视化Result
+            # Visualize Result
             for i, result in enumerate(results, 1):
                 confidence = result['confidence']
                 
@@ -1404,7 +1404,7 @@ def render_stats_page(neo4j_conn):
     st.title("📊 Database Statistics")
     
     if not neo4j_conn.connected:
-        st.warning("⚠️ Neo4jnot connected，无法Show统计")
+        st.warning("⚠️ Neo4j not connected, cannot show statistics")
         return
     
     with st.spinner("Loading statistics..."):

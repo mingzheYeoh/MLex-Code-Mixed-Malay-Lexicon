@@ -12,7 +12,7 @@ class SchemaInitializer:
         self.driver.close()
     
     def create_constraints(self):
-        """创建唯一性约束"""
+        """Create uniqueness constraints"""
         constraints = [
             "CREATE CONSTRAINT word_entry_unique IF NOT EXISTS FOR (w:Word) REQUIRE w.entry IS UNIQUE",
             "CREATE CONSTRAINT sense_id_unique IF NOT EXISTS FOR (s:Sense) REQUIRE s.sense_id IS UNIQUE",
@@ -32,7 +32,7 @@ class SchemaInitializer:
                         logger.warning(f"⚠️  {e}")
     
     def create_indexes(self):
-        """创建索引以提升查询性能"""
+        """Create indexes to improve query performance"""
         indexes = [
             "CREATE INDEX word_pos_idx IF NOT EXISTS FOR (w:Word) ON (w.pos)",
             "CREATE INDEX word_rootWrd_idx IF NOT EXISTS FOR (w:Word) ON (w.rootWrd)",
@@ -52,10 +52,10 @@ class SchemaInitializer:
                         logger.warning(f"⚠️  {e}")
     
     def create_fulltext_indexes(self):
-        """创建全文搜索索引"""
+        """Create fulltext search indexes"""
         
         with self.driver.session() as session:
-            # Word全文索引
+            # Word fulltext index
             try:
                 session.run("""
                     CREATE FULLTEXT INDEX wordFulltext IF NOT EXISTS
@@ -66,7 +66,7 @@ class SchemaInitializer:
             except Exception as e:
                 logger.info(f"ℹ️  Fulltext index already exists or syntax issue: {e}")
             
-            # Sense全文索引
+            # Sense fulltext index
             try:
                 session.run("""
                     CREATE FULLTEXT INDEX senseFulltext IF NOT EXISTS
@@ -78,23 +78,23 @@ class SchemaInitializer:
                 logger.info(f"ℹ️  Fulltext index already exists or syntax issue: {e}")
     
     def verify_schema(self):
-        """验证schema是否正确创建"""
+        """Verify schema is correctly created"""
         logger.info("\n" + "="*80)
-        logger.info("验证Schema...")
+        logger.info("Verifying Schema...")
         logger.info("="*80)
         
         with self.driver.session() as session:
-            # 查看约束
+            # View constraints
             result = session.run("SHOW CONSTRAINTS")
             constraints = list(result)
-            logger.info(f"\n约束数量: {len(constraints)}")
+            logger.info(f"\nNumber of constraints: {len(constraints)}")
             for record in constraints:
                 logger.info(f"  • {record.get('name', 'N/A')}")
             
-            # 查看索引
+            # View indexes
             result = session.run("SHOW INDEXES")
             indexes = list(result)
-            logger.info(f"\n索引数量: {len(indexes)}")
+            logger.info(f"\nNumber of indexes: {len(indexes)}")
             for record in indexes:
                 logger.info(f"  • {record.get('name', 'N/A')}")
         
@@ -102,33 +102,33 @@ class SchemaInitializer:
 
 
 def main():
-    """主函数"""
+    """Main function"""
     logger.info("="*80)
-    logger.info("开始初始化Neo4j Schema")
+    logger.info("Starting Neo4j Schema Initialization")
     logger.info("="*80)
     
     initializer = SchemaInitializer()
     
     try:
-        # 创建约束
-        logger.info("\n1. 创建约束...")
+        # Create constraints
+        logger.info("\n1. Creating constraints...")
         initializer.create_constraints()
         
-        # 创建索引
-        logger.info("\n2. 创建索引...")
+        # Create indexes
+        logger.info("\n2. Creating indexes...")
         initializer.create_indexes()
         
-        # 创建全文索引
-        logger.info("\n3. 创建全文搜索索引...")
+        # Create fulltext indexes
+        logger.info("\n3. Creating fulltext search indexes...")
         initializer.create_fulltext_indexes()
         
-        # 验证
+        # Verify
         initializer.verify_schema()
         
-        logger.info("\n✅ Schema初始化完成！")
+        logger.info("\n✅ Schema initialization completed!")
         
     except Exception as e:
-        logger.error(f"\n❌ Schema初始化失败: {e}")
+        logger.error(f"\n❌ Schema initialization failed: {e}")
     finally:
         initializer.close()
 
