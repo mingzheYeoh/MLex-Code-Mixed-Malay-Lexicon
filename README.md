@@ -1,4 +1,4 @@
-# MLex: Malay Lexicon System (Code-Mixed)
+R# MLex: Malay Lexicon System (Code-Mixed)
 
 A comprehensive Malay dictionary system built with Neo4j graph database, featuring AI-powered word sense disambiguation, semantic relationship networks, and an interactive web interface powered by Streamlit.
 
@@ -33,6 +33,8 @@ A comprehensive Malay dictionary system built with Neo4j graph database, featuri
   - streamlit - Web UI framework
   - requests - Ollama API integration
   - pandas - Data processing
+  - tqdm - Progress bar utilities
+  - google-generativeai - Gemini AI integration (optional)
 
 ## 📋 Prerequisites
 
@@ -48,7 +50,7 @@ Before starting, ensure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/MLex-Code-Mixed-Malay-Lexicon.git
+git clone https://github.com/MingZheYeoh/MLex-Code-Mixed-Malay-Lexicon.git
 cd MLex-Code-Mixed-Malay-Lexicon
 ```
 
@@ -98,7 +100,7 @@ GEMINI_API_KEY=your_key_here  # Optional: For Gemini AI
 
 ```bash
 # Initialize database constraints and indexes
-python scripts/init_database.py
+python scripts/init_schema.py
 
 # Import dictionary data (may take 10-30 minutes)
 python scripts/import_data.py
@@ -393,8 +395,8 @@ This project is open source. Please check the license file for more details.
 
 **Yeoh Ming Zhe**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+- GitHub: [@MingZheYeoh](https://github.com/MingZheYeoh)
+- Email: yeohmingzhe@example.com
 
 ## 🙏 Acknowledgments
 
@@ -413,7 +415,7 @@ If you use this lexicon in your research, please cite:
   author={Yeoh, Ming Zhe},
   year={2025},
   publisher={GitHub},
-  howpublished={\url{https://github.com/yourusername/MLex-Code-Mixed-Malay-Lexicon}},
+  howpublished={\url{https://github.com/MingZheYeoh/MLex-Code-Mixed-Malay-Lexicon}},
   note={A comprehensive Malay dictionary system with AI-powered word sense disambiguation}
 }
 ```

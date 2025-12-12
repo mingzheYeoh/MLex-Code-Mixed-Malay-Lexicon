@@ -36,7 +36,7 @@ class WordAdditionService:
         if gemini_api_key:
             try:
                 genai.configure(api_key=gemini_api_key)
-                self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+                self.model = genai.GenerativeModel('gemini-2.5-flash')
                 self.gemini_enabled = True
                 logger.info("✅ Gemini API initializesuccessfully")
             except Exception as e:
