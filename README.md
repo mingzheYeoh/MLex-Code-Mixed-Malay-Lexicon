@@ -396,7 +396,7 @@ This project is open source. Please check the license file for more details.
 **Yeoh Ming Zhe**
 
 - GitHub: [@MingZheYeoh](https://github.com/MingZheYeoh)
-- Email: yeohmingzhe@example.com
+- Email: mingzhe030228@gmail.com
 
 ## 🙏 Acknowledgments
 
